@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3000:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    volumes:
+      - open-webui-data:/app/backend/data
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - webui-network
+
+  docling:
+    image: quay.io/docling-project/docling-serve
+    container_name: docling
+    environment:
+      - DOCLING_SERVE_ENABLE_UI=1
+    ports:
+      - "5000:5000"
+    volumes:
+      - docling-data:/data
+    restart: unless-stopped
+    networks:
+      - webui-network
+
+volumes:
+  open-webui-data:
+    driver: local
+  docling-data:
+    driver: local
+
+networks:
+  webui-network:
+    driver: bridge
